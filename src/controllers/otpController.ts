@@ -4,6 +4,7 @@ import { generateOtp, storeOtp, verifyOtp as verifyOtpService } from "../service
 import { sendVerificationEmail } from "../services/emailService";
 import { hashingPassword } from "../utils /hashPassword";
 import prisma from "../utils /prisma";
+import { validateEmailSMTP } from "../utils /validateEmailSMTP";
 
 /**
  * Request OTP for email verification
@@ -16,12 +17,6 @@ export const requestOtp = async (req: Request, res: Response) => {
     return;
   }
 
-  // Validate email domain
-  if (!(await validateEmailDomain(email))) {
-    res.status(400).json({ message: "Invalid email domain" });
-    return;
-  }
-
   // Check if user already exists
   const userExists = await prisma.user.findUnique({ where: { email } });
   if (userExists) {
@@ -29,6 +24,22 @@ export const requestOtp = async (req: Request, res: Response) => {
     return;
   }
 
+
+  //checking if email is ready to receive email or not, should not use this... can use multiple methods
+  // const isAbleToReceive = await validateEmailSMTP(email);
+  // if (!isAbleToReceive) {
+  //   res.status(400).json({ message: "Invalid or undeliverable email address" });
+  //   return;
+  // }
+
+
+  // Validate email domain
+  if (!(await validateEmailDomain(email))) {
+    res.status(400).json({ message: "Invalid email domain" });
+    return;
+  }
+
+  
   // Generate OTP and store in Redis
   const otp = generateOtp();
   await storeOtp(email, otp, 300); // 5 minutes TTL
