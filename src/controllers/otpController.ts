@@ -5,10 +5,9 @@ import { sendVerificationEmail } from "../services/emailService";
 import { hashingPassword } from "../utils /hashPassword";
 import prisma from "../utils /prisma";
 import { validateEmailSMTP } from "../utils /validateEmailSMTP";
+import { validatePassword } from "../utils /validatePassword";
 
-/**
- * Request OTP for email verification
- */
+
 export const requestOtp = async (req: Request, res: Response) => {
   const { email } = req.body;
 
@@ -55,7 +54,19 @@ export const verifyOtp = async (req: Request, res: Response) => {
   const { email, otp, password, name } = req.body;
 
   if (!email || !otp || !password || !name) {
-    res.status(400).json({ message: "Email, OTP, name, and password are required" });
+    res.status(400).json({ msg: "Email, OTP, name, and password are required" });
+    return;
+  }
+
+  if(password.length < 8){ 
+    res.status(401).json({msg: "password should be atleast of 8 characters"});
+    return;
+  }
+
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+
+  if(!validatePassword(password)){
+    res.status(401).json({msg: "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character"});
     return;
   }
 

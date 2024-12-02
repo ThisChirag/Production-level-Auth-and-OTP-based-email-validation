@@ -26,10 +26,10 @@ userRoute.get('/home', authenticateToken, home);
 userRoute.post('/newblog', authenticateToken, newBlog);
 
 // Authentication routes
-userRoute.post('/login', rateLimiter("login", 10, 60), login);
+userRoute.post('/login', rateLimiter("login", 5, 60), login);
 
 // OTP-based signup routes
-userRoute.post('/signup/request-verification', rateLimiter("signup", 5, 60), requestOtp); // Request OTP
+userRoute.post('/signup/request-verification', rateLimiter("signup", 2, 60), requestOtp); // Request OTP
 userRoute.post('/signup/verify-otp', rateLimiter("verify-otp", 5, 60), verifyOtp); // Verify OTP and create account
 
 export default userRoute;
