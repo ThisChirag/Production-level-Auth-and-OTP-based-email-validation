@@ -128,19 +128,19 @@ redisClient.on("error", (err) => {
 
 // Generic rate limiter middleware
 export const rateLimiter = (
-  keyPrefix: string, // Prefix for the Redis key (e.g., "signup" or "login")
-  limit: number, // Maximum number of requests
-  windowSeconds: number // Time window in seconds
+  keyPrefix: string, 
+  limit: number, // max. no of request 
+  windowSeconds: number // time window in seconds
 ) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const key = `${keyPrefix}:${req.ip}`; // Key combines prefix and IP for unique rate limiting
 
     try {
-      // Increment the request count for this key
+
       const requests = await redisClient.incr(key);
 
       if (requests === 1) {
-        // Set the expiration time for the key when it is created
+        // setting the expiration time for the key when it is created
         await redisClient.expire(key, windowSeconds);
       }
 
